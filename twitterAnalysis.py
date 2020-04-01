@@ -24,7 +24,8 @@ def getRankOfHashtagAndLang(filePath):
                 # Count hashtag
                 hashtagDatas = jsonObj['doc']['entities']['hashtags']
                 for hashtagData in hashtagDatas:
-                    hashtag = hashtagData['text']
+                    # Parse hashtag and 
+                    hashtag = hashtagData['text'].lower()
                     if hashtag in hashtagDict:
                         hashtagDict[hashtag] += 1
                     else:
@@ -38,10 +39,39 @@ def getRankOfHashtagAndLang(filePath):
             except Exception:
                 print("Can not read line: ", index)
                 continue
-    print("Process: ", comm_rank, ' : ')
-    print("hashtagDict: \n", hashtagDict)
-    print("langDict: \n", langDict)
+    # Gather data to root 0
+    hashtagDictArr = comm.gather(hashtagDict, root=0)
+    langDictArr = comm.gather(langDict, root=0)
+    if comm_rank == 0:
+        hashtagRank = _getRankFromDictArr(hashtagDictArr)
+        langRank = _getRankFromDictArr(langDictArr)
+        _printHashTagRank(hashtagRank, 10)
 
+def _getRankFromDictArr(dictArr):
+    rankDict = {}
+    for d in dictArr:
+        for k, v in d.items():
+            if k in rankDict:
+                rankDict[k] += v
+            else:
+                rankDict[k] = v
+    rank = sorted(rankDict.items(), key=lambda d: d[1], reverse=True)
+    return rank
 
+def _printHashTagRank(hashtagRank, maxRank):
+    currentRank = 0
+    preCount = -1
+    sameCount = 1
+    for key, count in hashtagRank:
+        if preCount == count:
+            sameCount += 1
+        else:
+            preCount = count
+            currentRank += sameCount
+            sameCount = 1
+        if currentRank > maxRank:
+            break
+        print(str(currentRank) + '. #' + key + ', ' + str(count))
+        
 if __name__ == '__main__':
-    getRankOfHashtagAndLang('tinyTwitter.json')
+    getRankOfHashtagAndLang('smallTwitter.json')
