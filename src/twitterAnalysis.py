@@ -1,7 +1,8 @@
 from mpi4py import MPI
-import json
 import platform
 import sys
+import getopt
+import json
 from languageCode import getLangName
 
 comm = MPI.COMM_WORLD
@@ -91,6 +92,20 @@ if __name__ == '__main__':
         if (comm_rank == 0):
             print("Must run in python3, current python version: ", platform.python_version())
     else:
-        getRankOfHashtagAndLang('data/tinyTwitter.json')
+        dataPath = "data/bigTwitter.json"
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "hf:", ["help", "file="])
+        except getopt.GetoptError:
+            if (comm_rank == 0):
+                print('twitterAnalysis.py -f <datapath>')
+            sys.exit()
+        for opt, arg in opts:
+            if opt == '-h':
+                if (comm_rank == 0):
+                    print('twitterAnalysis.py -f <datapath>')
+                sys.exit()
+            elif opt in ("-f", "--file"):
+                dataPath = arg
+        getRankOfHashtagAndLang(dataPath)
 
 
