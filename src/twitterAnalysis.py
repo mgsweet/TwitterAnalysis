@@ -2,6 +2,7 @@ from mpi4py import MPI
 import json
 import platform
 import sys
+from languageCode import getLangName
 
 comm = MPI.COMM_WORLD
 comm_size = comm.size
@@ -46,7 +47,8 @@ def getRankOfHashtagAndLang(filePath):
     if comm_rank == 0:
         hashtagRank = _getRankFromDictArr(hashtagDictArr)
         langRank = _getRankFromDictArr(langDictArr)
-        _printHashTagRank(hashtagRank, 10)
+        _printRank("Hashtag Rank: ", hashtagRank, 10, _genHashTagPrint)
+        _printRank("Language Rank: ", langRank, 10, _genLangTagPrint)
 
 def _getRankFromDictArr(dictArr):
     rankDict = {}
@@ -59,7 +61,17 @@ def _getRankFromDictArr(dictArr):
     rank = sorted(rankDict.items(), key=lambda d: d[1], reverse=True)
     return rank
 
-def _printHashTagRank(hashtagRank, maxRank):
+def _genHashTagPrint(rank, key, count):
+    return str(rank) + '. #' + key + ', ' + format(count, ',')
+
+def _genLangTagPrint(rank, key, count):
+    return str(rank) + '. ' \
+          + getLangName(key) \
+          + '(' + str(key) + '), ' + format(count, ',')
+
+def _printRank(title, hashtagRank, maxRank, formatGenFunc):
+    print("-------------------------------------")
+    print(title)
     currentRank = 0
     preCount = -1
     sameCount = 1
@@ -72,7 +84,7 @@ def _printHashTagRank(hashtagRank, maxRank):
             sameCount = 1
         if currentRank > maxRank:
             break
-        print(str(currentRank) + '. #' + key + ',', format(count, ','))
+        print(formatGenFunc(currentRank, key, count))
         
 if __name__ == '__main__':
     if (sys.version_info[0] < 3):
@@ -80,3 +92,5 @@ if __name__ == '__main__':
             print("Must run in python3, current python version: ", platform.python_version())
     else:
         getRankOfHashtagAndLang('data/tinyTwitter.json')
+
+
