@@ -5,8 +5,6 @@ import getopt
 import json
 from languageCode import getLangName
 import io
-import os
-
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 comm = MPI.COMM_WORLD
@@ -19,22 +17,11 @@ def getRankOfHashtagAndLang(filePath):
     """
     hashtagDict = {}
     langDict = {}
-    dataSize = os.path.getsize(filePath)
-    blockSize = int(dataSize / comm_size)
-    if (comm_rank == 0):
-        print("Data size:", dataSize)
-        print("Each process handle:", blockSize)
-    import time
-    startTime = time.time()
     with open(filePath, 'r', encoding='utf-8') as f:
-        # Set the file pointer to the beginning of a line after blockSize * rank
-        f.seek(comm_rank * blockSize)
-        if comm_rank != 0: 
-            f.readline()
-        # Each process handle about blocksize lines.
-        blockEnd = (comm_rank + 1) * blockSize
-        while f.tell() <= blockEnd and(f.tell() < dataSize):
-            line = f.readline()
+        for index, line in enumerate(f):
+            # Different process handle different lines.
+            if (index % comm_size != comm_rank):
+                continue
             try:
                 # Line data format may be like '{...},\n' or '{...}}\n'.
                 if line[-2] == ',':
@@ -58,9 +45,8 @@ def getRankOfHashtagAndLang(filePath):
                     langDict[lang] = 1
             except Exception:
                 # Skip line not in JSON structure
-                # print("Can not read line: ", f.tell())
+                # print("Can not read line: ", index)
                 continue
-    print("Process", comm_rank, "cost:", time.time() - startTime)
     # Gather data to root 0
     hashtagDictArr = comm.gather(hashtagDict, root=0)
     langDictArr = comm.gather(langDict, root=0)

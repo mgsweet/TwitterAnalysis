@@ -1,0 +1,31 @@
+Running, use core:  8
+Data size: 20761096558
+Each process handle: 2595137069
+-------------------------------------
+Hashtag Rank: 
+1. #auspol, 19,878
+2. #coronavirus, 10,110
+3. #มาพ่องเพิ่งอะไร, 7,531
+4. #firefightaustralia, 6,812
+5. #oldme, 6,418
+6. #sydney, 6,196
+7. #scottyfrommarketing, 5,185
+8. #grammys, 5,085
+9. #assange, 4,689
+10. #sportsrorts, 4,516
+-------------------------------------
+Language Rank: 
+1. English (en), 3,107,116
+2. Undefined (und), 252,117
+3. Thai (th), 134,571
+4. Portuguese (pt), 125,858
+5. Spanish (es), 74,028
+6. Japanese (ja), 49,929
+7. Tagalog (tl), 44,560
+8. Indonesian (in), 42,296
+9. French (fr), 38,098
+10. Arabic (ar), 24,501
+
+real	1m38.998s
+user	13m1.604s
+sys	0m8.521s
