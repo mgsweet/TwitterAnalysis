@@ -2,7 +2,7 @@
 #SBATCH --partition physical
 #SBATCH --time=00:20:00
 #SBATCH --nodes=2
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=1
 #SBATCH --job-name=2node_8core
 #SBATCH --output=2n8c.out

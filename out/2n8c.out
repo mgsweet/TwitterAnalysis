@@ -1,4 +1,4 @@
-Running, use core:  16
+Running, use core:  8
 -------------------------------------
 Hashtag Rank: 
 1. #auspol, 19,878
@@ -24,6 +24,6 @@ Language Rank:
 9. French(fr), 38,098
 10. Arabic(ar), 24,501
 
-real	1m51.614s
-user	14m0.037s
-sys	0m34.757s
+real	2m3.395s
+user	7m49.907s
+sys	0m17.499s
