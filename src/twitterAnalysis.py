@@ -74,7 +74,7 @@ def _genHashTagPrint(rank, key, count):
 def _genLangTagPrint(rank, key, count):
     return str(rank) + '. ' \
         + getLangName(key) \
-        + '(' + str(key) + '), ' + format(count, ',')
+        + ' (' + str(key) + '), ' + format(count, ',')
 
 def _printRank(title, hashtagRank, maxRank, formatGenFunc):
     print("-------------------------------------")
