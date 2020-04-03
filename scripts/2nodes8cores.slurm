@@ -10,5 +10,5 @@
 #SBATCH --mail-user=zhaofengq@student.unimelb.edu.au
 #SBATCH --mail-type=FAIL
 
-module load Python/3.7.3-spartan_gcc-8.1.0
-time mpiexec -n 8 python src/twitterAnalysis.py
+module load Python/3.6.4-intel-2017.u2-GCC-6.2.0-CUDA9
+time mpiexec python src/twitterAnalysis.py

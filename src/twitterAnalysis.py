@@ -4,12 +4,17 @@ import sys
 import getopt
 import json
 from languageCode import getLangName
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 comm = MPI.COMM_WORLD
 comm_size = comm.size
 comm_rank = comm.rank
 
 def getRankOfHashtagAndLang(filePath):
+    """
+    Use to analysis the tweet data and get the rank of hashtag and language used.
+    """
     hashtagDict = {}
     langDict = {}
     with open(filePath, 'r', encoding='utf-8') as f:
@@ -26,7 +31,7 @@ def getRankOfHashtagAndLang(filePath):
                 # Count hashtag
                 hashtagDatas = jsonObj['doc']['entities']['hashtags']
                 for hashtagData in hashtagDatas:
-                    # Parse hashtag and 
+                    # Parse hashtag and
                     hashtag = hashtagData['text'].lower()
                     if hashtag in hashtagDict:
                         hashtagDict[hashtag] += 1
@@ -65,10 +70,11 @@ def _getRankFromDictArr(dictArr):
 def _genHashTagPrint(rank, key, count):
     return str(rank) + '. #' + key + ', ' + format(count, ',')
 
+
 def _genLangTagPrint(rank, key, count):
     return str(rank) + '. ' \
-          + getLangName(key) \
-          + '(' + str(key) + '), ' + format(count, ',')
+        + getLangName(key) \
+        + '(' + str(key) + '), ' + format(count, ',')
 
 def _printRank(title, hashtagRank, maxRank, formatGenFunc):
     print("-------------------------------------")
@@ -86,11 +92,13 @@ def _printRank(title, hashtagRank, maxRank, formatGenFunc):
         if currentRank > maxRank:
             break
         print(formatGenFunc(currentRank, key, count))
-        
+
+
 if __name__ == '__main__':
     if (sys.version_info[0] < 3):
         if (comm_rank == 0):
-            print("Must run in python3, current python version: ", platform.python_version())
+            print("Must run in python3, current python version: ",
+                  platform.python_version())
     else:
         dataPath = "data/bigTwitter.json"
         try:
@@ -106,6 +114,6 @@ if __name__ == '__main__':
                 sys.exit()
             elif opt in ("-f", "--file"):
                 dataPath = arg
+        if (comm_rank == 0):
+            print("Running, use core: ", comm_size)
         getRankOfHashtagAndLang(dataPath)
-
-
