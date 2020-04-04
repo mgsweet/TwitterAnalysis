@@ -6,7 +6,6 @@ import json
 from languageCode import getLangName
 import io
 import os
-import mmap
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -25,27 +24,23 @@ def getRankOfHashtagAndLang(filePath):
     if (comm_rank == 0):
         print("Data size:", dataSize)
         print("Each process handle:", blockSize)
+    import time
+    startTime = time.time()
     with open(filePath, 'r', encoding='utf-8') as f:
         # Set the file pointer to the beginning of a line after blockSize * rank
-        # Use mmap to run faster
-        map = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
-        map.seek(comm_rank * blockSize)
+        f.seek(comm_rank * blockSize)
         if comm_rank != 0:
-            map.readline()
+            f.readline()
         # Each process handle about blocksize lines.
         blockEnd = (comm_rank + 1) * blockSize
-        # Use index here to avoid using twice map.tell()
-        index = map.tell()
-        while index <= blockEnd and index < dataSize:
-            # line = map.readline().translate(None, b'\x00').decode()
-            line = map.readline().decode('utf-8')
-            index = map.tell()
+        while f.tell() <= blockEnd and(f.tell() < dataSize):
+            line = f.readline()
             try:
-                # Line data format may be like '{...},\r\n' or '{...}}\r\n'.
-                if line[-3] == ',':
-                    jsonObj = json.loads(line[: -3])
-                else:
+                # Line data format may be like '{...},\n' or '{...}}\n'.
+                if line[-2] == ',':
                     jsonObj = json.loads(line[: -2])
+                else:
+                    jsonObj = json.loads(line[: -1])
                 # Count hashtag
                 hashtagDatas = jsonObj['doc']['entities']['hashtags']
                 for hashtagData in hashtagDatas:
@@ -61,15 +56,14 @@ def getRankOfHashtagAndLang(filePath):
                     langDict[lang] += 1
                 else:
                     langDict[lang] = 1
-            except Exception as err:
-                # print(err)
+            except Exception:
                 # Skip line not in JSON structure
-                # print("Can not read line: ", map.tell())
+                # print("Can not read line: ", f.tell())
                 continue
+    print("Process", comm_rank, "cost:", time.time() - startTime)
     # Gather data to root 0
     hashtagDictArr = comm.gather(hashtagDict, root=0)
     langDictArr = comm.gather(langDict, root=0)
-
     if comm_rank == 0:
         hashtagRank = _getRankFromDictArr(hashtagDictArr)
         langRank = _getRankFromDictArr(langDictArr)
