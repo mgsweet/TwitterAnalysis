@@ -9,10 +9,7 @@ COMP90024 Cluster and Cloud Computing Assignment 1
 2. Run with command:
     ```shell
     time mpiexec -n 4 python3 src/twitterAnalysis.py -f <datapath>
-```
-    
-
-
+    ```
 
 ## Result:
 
@@ -51,10 +48,6 @@ real    0m0.471s
 user    0m0.819s
 sys     0m0.237s
 ```
-
-
-
-
 
 ## Script Usage:
 1. Change the  username, password and data path in `pushToSpartan.sh` to your own info
