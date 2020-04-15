@@ -1,3 +1,4 @@
+# A dictionary of language codes and names
 _lanCodeDict = {
     "am" :"Amharic",
     "pt" :"Portuguese",
@@ -150,6 +151,7 @@ _lanCodeDict = {
     "zu" :"Zulu",
     "und":"Undefined"}
 
+# Get the name of a language using its code
 def getLangName(acronym):
     if acronym in _lanCodeDict:
         return _lanCodeDict[acronym]

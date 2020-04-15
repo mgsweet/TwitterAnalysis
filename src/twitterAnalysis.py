@@ -32,16 +32,15 @@ def getRankOfHashtagAndLang(filePath):
         map.seek(comm_rank * blockSize)
         if comm_rank != 0:
             map.readline()
-        # Each process handle about blocksize lines.
+        # Each process handles a blocksize of lines.
         blockEnd = (comm_rank + 1) * blockSize
-        # Use index here to avoid using twice map.tell()
+        # Use index here to avoid using map.tell() twice
         index = map.tell()
         while index <= blockEnd and index < dataSize:
-            # line = map.readline().translate(None, b'\x00').decode()
             line = map.readline().decode('utf-8')
             index = map.tell()
             try:
-                # Line data format may be like '{...},\r\n' or '{...}}\r\n'.
+                # A line may end in either '{...},\r\n' or '{...}}\r\n'.
                 if line[-3] == ',':
                     jsonObj = json.loads(line[: -3])
                 else:
@@ -49,7 +48,7 @@ def getRankOfHashtagAndLang(filePath):
                 # Count hashtag
                 hashtagDatas = jsonObj['doc']['entities']['hashtags']
                 for hashtagData in hashtagDatas:
-                    # Parse hashtag and
+                    # Parse hashtag
                     hashtag = hashtagData['text'].lower()
                     if hashtag in hashtagDict:
                         hashtagDict[hashtag] += 1
@@ -62,20 +61,20 @@ def getRankOfHashtagAndLang(filePath):
                 else:
                     langDict[lang] = 1
             except Exception as err:
-                # print(err)
-                # Skip line not in JSON structure
-                # print("Can not read line: ", map.tell())
+                # Skip a line if it's not in proper JSON structure
                 continue
     # Gather data to root 0
     hashtagDictArr = comm.gather(hashtagDict, root=0)
     langDictArr = comm.gather(langDict, root=0)
 
+    # Print desired outcome
     if comm_rank == 0:
         hashtagRank = _getRankFromDictArr(hashtagDictArr)
         langRank = _getRankFromDictArr(langDictArr)
         _printRank("Hashtag Rank: ", hashtagRank, 10, _genHashTagPrint)
         _printRank("Language Rank: ", langRank, 10, _genLangTagPrint)
 
+# Rank hashtags or languages based on number of appearances
 def _getRankFromDictArr(dictArr):
     rankDict = {}
     for d in dictArr:
@@ -87,15 +86,17 @@ def _getRankFromDictArr(dictArr):
     rank = sorted(rankDict.items(), key=lambda d: d[1], reverse=True)
     return rank
 
+# Helper to print out hashtags in required format
 def _genHashTagPrint(rank, key, count):
     return str(rank) + '. #' + key + ', ' + format(count, ',')
 
-
+# Helper to print out languages in required format
 def _genLangTagPrint(rank, key, count):
     return str(rank) + '. ' \
         + getLangName(key) \
         + ' (' + str(key) + '), ' + format(count, ',')
 
+# Print out top x hashtags or languages, denpending on the parameters
 def _printRank(title, hashtagRank, maxRank, formatGenFunc):
     print("-------------------------------------")
     print(title)
@@ -112,7 +113,6 @@ def _printRank(title, hashtagRank, maxRank, formatGenFunc):
         if currentRank > maxRank:
             break
         print(formatGenFunc(currentRank, key, count))
-
 
 if __name__ == '__main__':
     if (sys.version_info[0] < 3):
@@ -133,6 +133,7 @@ if __name__ == '__main__':
                     print('twitterAnalysis.py -f <datapath>')
                 sys.exit()
             elif opt in ("-f", "--file"):
+                # Allow using command line argument to specify file path
                 dataPath = arg
         if (comm_rank == 0):
             print("Running, use core: ", comm_size)
