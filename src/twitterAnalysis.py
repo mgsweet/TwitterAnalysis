@@ -1,3 +1,9 @@
+#Cloud and Cluster Computing 2020 semester 1
+#Assignment 1
+#Author:
+#Zhaofeng Qiu 1101584 zhaofengq@student.unimelb.edu.au
+#Xinzhe Li 825797 xinzhel@student.unimelb.edu.au
+
 from mpi4py import MPI
 import platform
 import sys
