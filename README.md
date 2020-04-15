@@ -51,10 +51,10 @@ sys     0m0.237s
 
 ## Script Usage:
 1. Change the  username, password and data path in `pushToSpartan.sh` to your own info
-2. Also change the info in `pullOut` to your own info.
+2. Also change the info in `pullOut.sh` to your own info.
 3. Install `export` by `brew install export`.
 4. Use `export pushToSpartan.sh` to push file to spartan.
-5. Use `export pullOut` to pull the output file from spartan.
+5. Use `export pullOut.sh` to pull the output file from spartan.
 
 
 
